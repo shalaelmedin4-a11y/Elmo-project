@@ -1,5 +1,6 @@
-"""Synthesise the narrator (piper, German 'thorsten' voice), make it deep and
-documentary-like, and write a timeline.json with exact segment timings."""
+"""Synthesise the narration: the boy himself (piper, German 'thorsten' voice
+shifted up into a cracking teenage voice), and write a timeline.json with
+exact segment timings."""
 import json, os, subprocess, sys, wave
 import numpy as np
 from script_data import SCENES
@@ -25,22 +26,45 @@ def read_wav(path):
     return data
 
 
-def synth(text, out):
+def _ff(src, dst, af):
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", src, "-af", af,
+                    "-ac", "1", "-ar", str(SR), dst], check=True)
+
+
+def write_wav(path, x):
+    with wave.open(path, "w") as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR)
+        w.writeframes((np.clip(x, -1, 1) * 32767).astype(np.int16).tobytes())
+
+
+def synth(text, out, crack=None):
     raw = out + ".raw.wav"
     subprocess.run([sys.executable, "-m", "piper", "-m", VOICE, "-f", raw,
-                    "--length-scale", "1.18", "--noise-scale", "0.5"],
+                    "--length-scale", "1.05", "--noise-scale", "0.7", "--noise-w-scale", "0.9"],
                    input=text.encode(), check=True, capture_output=True)
-    # Deeper, warmer, slightly roomy "documentary" voice.
-    af = ("silenceremove=start_periods=1:start_threshold=-45dB,areverse,"
-          "silenceremove=start_periods=1:start_threshold=-45dB,areverse,"
-          "aresample=44100,rubberband=pitch=0.82:formant=preserved,"
-          "bass=g=5:f=140,equalizer=f=3000:t=q:w=1:g=2,"
-          "acompressor=threshold=-18dB:ratio=3:attack=5:release=80,"
-          "aecho=0.8:0.5:40:0.12")
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", raw, "-af", af,
-                    "-ac", "1", "-ar", str(SR), out], check=True)
+    # 14-year-old: pitch and formants shifted up, thin and dry, trying hard to sound cool.
+    _ff(raw, out, "silenceremove=start_periods=1:start_threshold=-45dB,areverse,"
+                  "silenceremove=start_periods=1:start_threshold=-45dB,areverse,"
+                  "aresample=44100,rubberband=pitch=1.38,highpass=f=140,"
+                  "equalizer=f=2500:t=q:w=1:g=3,acompressor=threshold=-18dB:ratio=3:attack=5:release=80")
     os.remove(raw)
-    return read_wav(out)
+    audio = read_wav(out)
+    if crack:
+        # voice crack: one syllable jumps up into falsetto
+        a, b = (int(f * len(audio)) for f in crack)
+        part = out + ".crack.wav"
+        write_wav(part, audio[a:b])
+        _ff(part, part + ".hi.wav", "rubberband=pitch=1.6,volume=1.15")
+        hi = read_wav(part + ".hi.wav")[: b - a]
+        hi = np.pad(hi, (0, b - a - len(hi)))
+        fade = np.ones(b - a)
+        k = min(int(0.02 * SR), (b - a) // 3)
+        fade[:k] = np.linspace(0, 1, k); fade[-k:] = np.linspace(1, 0, k)
+        audio = audio.copy()
+        audio[a:b] = audio[a:b] * (1 - fade) + hi * fade
+        write_wav(out, audio)
+        os.remove(part); os.remove(part + ".hi.wav")
+    return audio
 
 
 def main():
@@ -50,9 +74,9 @@ def main():
     for si, sc in enumerate(SCENES):
         t = sc["lead"]
         segs = []
-        for gi, (tts, sub, pause) in enumerate(sc["segments"]):
+        for gi, (tts, sub, pause, *crack) in enumerate(sc["segments"]):
             t += pause
-            audio = synth(tts, os.path.join(BUILD, "narr", f"s{si}_{gi}.wav"))
+            audio = synth(tts, os.path.join(BUILD, "narr", f"s{si}_{gi}.wav"), crack[0] if crack else None)
             dur = len(audio) / SR
             segs.append(dict(start=round(t, 3), end=round(t + dur, 3), text=sub))
             track.append((t0 + t, audio))
