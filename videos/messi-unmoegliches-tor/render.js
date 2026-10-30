@@ -3,7 +3,7 @@ const fs = require('fs');
 (async () => {
   const [,, mode, outDir, a, b] = process.argv; // mode: stills|video
   fs.mkdirSync(outDir, { recursive: true });
-  const dur = fs.readFileSync(__dirname + '/vo/dur.json', 'utf8');
+  const dur = fs.readFileSync(__dirname + '/vo2/dur.json', 'utf8');
   const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
   const page = await browser.newPage({ viewport: { width: 540, height: 960 }, deviceScaleFactor: 2 });
   page.on('console', m => console.log('console:', m.text()));
