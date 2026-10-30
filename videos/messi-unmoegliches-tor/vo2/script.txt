@@ -2,7 +2,7 @@ hook|Okay, schau dir dieses Tor an.|Eigentlich hätte es das nie geben dürfen.
 setup|Pokalfinale zweitausendfünfzehn, im Camp Nou.|Barcelona gegen Athletic Bilbao.|Zwanzigste Minute, null zu null.
 receive|Messi kriegt den Ball rechts an der Seitenlinie.|Bis zum Tor sind's über fünfzig Meter.
 space|Und sofort kommen drei Gegenspieler.|Jeder keine zwei Meter vom Ball entfernt.|Rechts nur die Linie. Eigentlich ist da Schluss.
-trick|Aber Messi wird langsamer. Fast bis zum Stehen.|Die drei greifen an, und genau dann zieht er an.|Von null auf einunddreißig Kilometer pro Stunde, in nur zwei Komma sieben Sekunden.
+trick|Aber Messi wird langsamer. Fast bis zum Stehen.|Die drei warten ab, und genau dann zieht er an.|Von null auf einunddreißig Kilometer pro Stunde, in nur zwei Komma sieben Sekunden.
 touches|Für alle drei braucht er nur eins Komma zwei Sekunden.|Mit genau drei kurzen, kontrollierten Ballkontakten.|Das Abbremsen macht genau das möglich.
 fourth|Im Strafraum wartet noch der Vierte.|Ein Haken, und weg ist er.
 angle|Dann der Winkel.|Von da sieht er nur etwa sechzehn Grad vom Tor.|Vom Elfmeterpunkt wären es siebenunddreißig.

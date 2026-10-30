@@ -70,7 +70,16 @@ export class Footballer {
     att(B.Neck, B.Head, latheSeg(len(B.Neck, B.Head) + 0.03, [[0, 0.055], [1, 0.05]]), M.skin, { off: -0.01 });
     const Lh = len(B.Head, B.HeadTop_End);
     this.headMesh = att(B.Head, B.HeadTop_End, ellipsoid(0.088, Lh * 0.55, 0.1), M.skin, { off: Lh * 0.48 });
-    this.hairMesh = att(B.Head, B.HeadTop_End, (() => { const g = new THREE.SphereGeometry(1, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.5); g.scale(0.094, Lh * 0.5, 0.106); return g; })(), M.hair, { off: Lh * 0.55 });
+    // hair: a cap tilted toward the back of the head, built in world space (bind pose faces +z) and parented to the head
+    {
+      const g = new THREE.SphereGeometry(1, 24, 14, 0, Math.PI * 2, 0, Math.PI * 0.58);
+      g.scale(0.098, Lh * 0.6, 0.11);
+      this.hairMesh = new THREE.Mesh(g, M.hair); this.hairMesh.castShadow = true;
+      const hp = new THREE.Vector3(); this.headMesh.getWorldPosition(hp);
+      this.hairMesh.position.copy(hp).add(new THREE.Vector3(0, 0.012, -0.012).multiplyScalar(this.scale));
+      this.hairMesh.rotation.x = -0.42; this.hairMesh.scale.setScalar(this.scale);
+      scene.add(this.hairMesh); this.hairMesh.updateMatrixWorld(); B.Head.attach(this.hairMesh);
+    }
     // arms
     for (const s of ['Left', 'Right']) {
       const Lu = len(B[s + 'Arm'], B[s + 'ForeArm']), Lf = len(B[s + 'ForeArm'], B[s + 'Hand']);
@@ -91,6 +100,17 @@ export class Footballer {
       att(B[s + 'Foot'], B[s + 'ToeBase'], latheSeg(Lfoot + 0.02, [[0, 0.04], [0.5, 0.045], [1, 0.038]], 0.85, 1.05), M.boots, { off: -0.03 });
       att(B[s + 'ToeBase'], B[s + 'Toe_End'], latheSeg(Ltoe + 0.01, [[0, 0.038], [0.7, 0.032], [1, 0.012]], 0.8, 1.15), M.boots);
     }
+    // shirt number on the back
+    if (opts.number) {
+      const cv = document.createElement('canvas'); cv.width = 256; cv.height = 256; const g = cv.getContext('2d');
+      g.font = 'bold 190px Anton, Impact, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.lineWidth = 10; g.strokeStyle = 'rgba(20,20,30,0.6)'; g.strokeText(opts.number, 128, 136); g.fillStyle = opts.numberColor || '#f5d23c'; g.fillText(opts.number, 128, 136);
+      const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace;
+      const pl = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.2), new THREE.MeshStandardMaterial({ map: tx, transparent: true, roughness: 0.7, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 }));
+      const sp = new THREE.Vector3(); B.Spine2.getWorldPosition(sp);
+      pl.position.copy(sp).add(new THREE.Vector3(0, -0.02, -0.142).multiplyScalar(this.scale)); pl.rotation.y = Math.PI; pl.scale.setScalar(this.scale);
+      scene.add(pl); pl.updateMatrixWorld(); B.Spine2.attach(pl);
+    }
     // face sprite
     if (opts.faceTex) {
       this.face = new THREE.Sprite(new THREE.SpriteMaterial({ map: opts.faceTex }));
@@ -109,7 +129,7 @@ export class Footballer {
     this.dist = 0;
   }
   // phaseDist: cumulative distance travelled (m); speed m/s
-  pose({ x, z, heading, speed, dist, t = 0, kick = 0, lunge = 0, celebrate = 0, crouch = 0, dive = 0, diveDir = 1 }) {
+  pose({ x, z, heading, speed, dist, t = 0, kick = 0, lunge = 0, celebrate = 0, crouch = 0, dive = 0, diveDir = 1, shuffle = 0, shufflePh = 0, ready = 0 }) {
     const w = this.wrap;
     w.position.set(x, 0, z);
     w.rotation.set(0, Math.PI / 2 - heading, 0);
@@ -142,6 +162,13 @@ export class Footballer {
       rot(B.LeftArm, Z, 0.7); rot(B.RightArm, Z, -0.6);
     }
     if (celebrate) { rot(B.LeftArm, Z, 2.2 * celebrate); rot(B.RightArm, Z, -2.2 * celebrate); rot(B.LeftForeArm, Z, 0.4 * celebrate); rot(B.RightForeArm, Z, -0.4 * celebrate); }
+    w.position.y = -drop * this.scale;
+    if (shuffle) { // goalkeeper side-steps: legs open and close while moving sideways
+      const o = Math.sin(shufflePh) * 0.22 * shuffle;
+      rot(B.LeftUpLeg, Z, Math.max(0, o)); rot(B.RightUpLeg, Z, -Math.max(0, -o));
+      drop += Math.abs(Math.sin(shufflePh)) * 0.03 * shuffle;
+    }
+    if (ready) { rot(B.LeftArm, Z, 0.55 * ready); rot(B.RightArm, Z, -0.55 * ready); rot(B.LeftForeArm, X, -0.6 * ready); rot(B.RightForeArm, X, -0.6 * ready); }
     w.position.y = -drop * this.scale;
     if (dive) { w.rotateZ(diveDir * dive * 1.35); w.position.y = dive * 0.28; }
     this.root.updateMatrixWorld(true);
