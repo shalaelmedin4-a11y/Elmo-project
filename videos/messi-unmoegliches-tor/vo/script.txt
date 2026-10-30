@@ -1,0 +1,10 @@
+hook|Dieses Tor hätte es eigentlich nie geben dürfen.
+setup|Dreißigster Mai, zweitausendfünfzehn. Pokalfinale im Camp Nou. Barcelona gegen Athletic Bilbao. Zwanzigste Minute, null zu null.
+receive|Messi bekommt den Ball an der rechten Seitenlinie, kurz vor der Mittellinie. Bis zum Tor: über fünfzig Meter.
+space|Problem eins: kein Platz. Drei Gegenspieler stellen ihn sofort. Rechts nur die Seitenlinie. Normalerweise ist hier Schluss.
+trick|Doch Messi wird langsamer. Fast bis zum Stillstand. Die Verteidiger greifen an. Und genau dann explodiert er durch die Lücke.
+fourth|Im Strafraum wartet der vierte Gegenspieler. Ein kurzer Haken, und auch er ist weg.
+angle|Problem zwei: kein Winkel. Von hier sieht er nur etwa sechzehn Grad vom Tor. Vom Elfmeterpunkt wären es siebenunddreißig.
+shot|Jeder Torwart lernt: Schließ das kurze Eck. Herrerin erwartet den Querpass. Messi schießt genau dorthin. Tor!
+result|Barcelona gewinnt drei zu eins und holt am Ende das Triple. Bei der Wahl zum Puskas-Preis: Platz zwei.
+cta|Schick das einem Freund, der sagt, Fußball sei einfach. Und folg mir für mehr Analysen.
