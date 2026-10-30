@@ -139,7 +139,12 @@ export class Footballer {
     A.run.time = ((dist / 3.4) % 1) * A.run.getClip().duration;
     A.walk.time = ((dist / 1.5) % 1) * A.walk.getClip().duration;
     A.idle.time = (t % A.idle.getClip().duration);
+    // The mixer only writes a bone when its animated value changed since the last update. Restore last frame's
+    // clean (pre-overlay) pose first, otherwise the overlays below would pile up frame after frame.
+    if (this.clean) for (const [bone, q] of this.clean) bone.quaternion.copy(q);
     this.mixer.update(0);
+    if (!this.clean) { this.clean = []; this.root.traverse(n => { if (n.isBone) this.clean.push([n, new THREE.Quaternion()]); }); }
+    for (const [bone, q] of this.clean) q.copy(bone.quaternion);
     const B = this.bones;
     // overlays in character space (X = character's left, Z = forward), applied on top of the clip pose
     const X = new THREE.Vector3(1, 0, 0), Z = new THREE.Vector3(0, 0, 1);

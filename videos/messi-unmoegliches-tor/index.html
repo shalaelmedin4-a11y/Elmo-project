@@ -344,7 +344,7 @@ window.renderAt=function(t){
   else if(id==='fourth'){A=7.9+U*2.25;}
   else if(id==='angle'){A=SHOT-0.08;}
   else if(id==='shot'){A=u<2.2?SHOT-0.3+u*0.08:SHOT-0.12+(u-2.2)*0.3;slow=u>=2.2?0.3:0;}
-  else if(id==='detail'){A=SHOT-0.005;}
+  else if(id==='detail'){const half=sc.dur/2,v=(u%half)/half;A=SHOT-0.45+ss(0,1,v)*0.75;} // two slow-motion replays of the strike
   else if(id==='result'){A=11.4+u*0.9;}
   else if(id==='cta'){A=11.4+sd('result')*0.9+u*0.9;}
   else{A=11.4+(sd('result')+sd('cta'))*0.9+u*0.9;}
@@ -353,13 +353,14 @@ window.renderAt=function(t){
   const kick=ss(SHOT-0.25,SHOT+0.2,A)*(1-ss(SHOT+0.35,SHOT+0.8,A));
   const cel=ss(11.4,12.0,A);
   const[mxx,mzz]=track(MK,A),[mx2,mz2]=track(MK,A+0.05);const mv=Math.hypot(mx2-mxx,mz2-mzz)/0.05;
-  const mHead=mv>0.05?Math.atan2(mz2-mzz,mx2-mxx):(messi.lastHead??0);messi.lastHead=mHead;
+  const hdir=(K,a)=>{const[x0,z0]=track(K,a-0.35),[x1,z1]=track(K,a+0.35);return Math.atan2(z1-z0,x1-x0);};
+  const mHead=mv>0.05?Math.atan2(mz2-mzz,mx2-mxx):hdir(MK,A);
   messi.pose({x:mxx,z:mzz,heading:mHead,speed:A>=SHOT-0.2&&A<SHOT+0.5?0:mv,dist:dMessi(A),t:A,kick,celebrate:cel});
   {const w=ss(SHOT-0.4,SHOT-0.12,A)*(1-ss(SHOT+0.4,SHOT+0.9,A));if(w>0)messi.nudge(KICK_OFF.x*w,KICK_OFF.z*w);}
   def.forEach((f,i)=>{const[a,b]=LUNGE[i];const l=ss(a,(a+b)/2,A)*(1-ss((a+b)/2+0.2,b+0.5,A));
     const[dx,dz]=track(DK[i],A),[dx2,dz2]=track(DK[i],A+0.05);const v=Math.hypot(dx2-dx,dz2-dz)/0.05;
-    let h=v>0.05?Math.atan2(dz2-dz,dx2-dx):(f.lastHead??Math.PI);
-    if(A<12&&Math.hypot(mxx-dx,mzz-dz)<9)h=Math.atan2(mzz-dz,mxx-dx);f.lastHead=h;
+    let h=v>0.05?Math.atan2(dz2-dz,dx2-dx):hdir(DK[i],A);
+    if(A<12&&Math.hypot(mxx-dx,mzz-dz)<9)h=Math.atan2(mzz-dz,mxx-dx);
     f.pose({x:dx,z:dz,heading:h,speed:v,dist:dDef[i](A),t:A+i,lunge:l,crouch:v<1.5?0.35*(1-l):0});});
   {// keeper: stays on the bisector of the angle ball->posts, steps off his line as the ball comes closer
    const dive=ss(SHOT+0.06,SHOT+0.45,A);const lagA=Math.min(A,SHOT+0.02);
@@ -380,7 +381,7 @@ window.renderAt=function(t){
   {// roll: angle from distance travelled, axis perpendicular to the direction of travel
    const flight=A>SHOT?Math.min(A,BALL_IN)-SHOT:0;const dist=dMessi(Math.min(A,SHOT))+flight*35+(A>BALL_IN?(A-BALL_IN)*3:0);
    const dir=A>SHOT?Math.atan2(shotDir.y,shotDir.x):mHead;ball.quaternion.setFromAxisAngle(new THREE.Vector3(-Math.sin(dir),0,Math.cos(dir)),-dist/0.11);}
-  if(A>SHOT+0.01&&(id==='hook'||id==='shot')){const pts=[];const upto=clamp((A-SHOT)/(BALL_IN-SHOT));for(let k=0;k<=24;k++){const s2=upto*k/24;const p=BALL0.clone().lerp(NEAR,s2);p.y+=Math.sin(s2*Math.PI)*0.35;pts.push(p);}
+  if(A>SHOT+0.01&&(id==='hook'||id==='shot'||id==='detail')){const pts=[];const upto=clamp((A-SHOT)/(BALL_IN-SHOT));for(let k=0;k<=24;k++){const s2=upto*k/24;const p=BALL0.clone().lerp(NEAR,s2);p.y+=Math.sin(s2*Math.PI)*0.35;pts.push(p);}
     trail.geometry.dispose();trail.geometry=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),48,0.035,8,false);trail.visible=true;}else trail.visible=false;
   ballGlow.position.copy(bp);ballGlow.scale.setScalar(0.9);ballGlow.material.opacity=(A>SHOT&&A<BALL_IN+0.2)?0.45:0;
   const hit=ss(BALL_IN-0.03,BALL_IN+0.08,A)*(1-ss(BALL_IN+0.25,BALL_IN+1.2,A));
