@@ -105,7 +105,7 @@ function render(t){x.clearRect(0,0,W,H);background(t);
     txt('I think, therefore I am',960,292,`bold 108px ${SERIF}`,INK,A*lerp(.5,1,E(t,0,.8)));
     const u=E(t,.6,1.4)*440;line(960-u,395,960+u,395,RED,4,1,A);
     txt('– what does that actually mean?',960,470,`italic 56px ${SERIF}`,INK,A*E(t,2.9,3.4));
-    txt('FELESOF EXPLAINS',960,566,`bold 38px ${SERIF}`,RED,A*E(t,5.0,5.6),14);
+    txt('HALBO EXPLAINS',960,566,`bold 38px ${SERIF}`,RED,A*E(t,5.0,5.6),14);
     const lit=E(t,.8,1.6);glow(1500,705,240,A*.35*lit);
     x.save();x.globalAlpha=A;const cg=x.createLinearGradient(1480,0,1520,0);cg.addColorStop(0,'#d9c7a2');cg.addColorStop(.5,'#f6ecd4');cg.addColorStop(1,'#cdb98f');x.fillStyle=cg;x.fillRect(1480,742,40,118);x.restore();
     line(1500,742,1500,728,'#2a1a10',3,1,A);

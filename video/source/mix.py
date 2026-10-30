@@ -16,17 +16,10 @@ for f,st,en in plan:
     if d>slot: x=load(f,min(1.2,d/slot)); 
     print(f,st,f'{d:.2f}->{len(x)/SR:.2f} slot {slot:.2f}')
     i=int(st*SR); out[i:i+len(x)]+=x
-# ambient pad: soft detuned chord in D minor with slow swell
-t=np.arange(len(out))/SR
-pad=np.zeros_like(out)
-for fr,amp in [(73.42,1),(110.0,.6),(146.83,.5),(174.61,.35),(220.0,.25)]:
-    pad+=amp*(np.sin(2*np.pi*fr*t)+np.sin(2*np.pi*fr*1.003*t+1))*0.5
-pad*=0.6+0.4*np.sin(2*np.pi*t/9.0)
-# darker segment 39-46 & 52-72 (night scenes): lower root
-k=np.ones(48)/48; pad=np.convolve(pad,k,'same')
-pad/=np.abs(pad).max(); pad*=0.035
-fade=np.clip(t/2.0,0,1)*np.clip((T-t)/2.0,0,1)
-mix=out*0.9+pad*fade
+# original background music (vocals removed)
+import soundfile as sf
+mu,_=sf.read('music.wav',dtype='float32');mu=mu[:len(out)]
+mix=np.zeros((len(out),2),np.float32);mix[:len(mu)]+=mu;mix+=(out*0.9)[:,None]
 mix=mix[:int(SR*T)]; mix/=max(1,np.abs(mix).max()/0.95)
-w=wave.open('voice_mix.wav','wb');w.setnchannels(1);w.setsampwidth(2);w.setframerate(SR)
+w=wave.open('voice_mix.wav','wb');w.setnchannels(2);w.setsampwidth(2);w.setframerate(SR)
 w.writeframes((mix*32767).astype(np.int16).tobytes());w.close()
