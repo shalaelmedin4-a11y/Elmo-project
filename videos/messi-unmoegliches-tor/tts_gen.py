@@ -27,7 +27,7 @@ for line in open('vo2/script.txt'):
         best=None
         for attempt in range(6):
             torch.manual_seed(1000+attempt*17+i)
-            wav=m.generate(txt,language_id="de",audio_prompt_path="ref/ref_amused.wav",exaggeration=0.6,cfg_weight=0.4,temperature=0.8)
+            wav=m.generate(txt,language_id="de",audio_prompt_path="ref/ref_deep.wav",exaggeration=0.55,cfg_weight=0.4,temperature=0.8)
             sc,hyp=check(wav,m.sr,txt)
             dur=wav.shape[-1]/m.sr
             if best is None or sc>best[0]: best=(sc,wav,hyp)
