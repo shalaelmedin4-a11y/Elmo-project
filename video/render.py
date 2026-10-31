@@ -202,7 +202,8 @@ def scene_alarm(c, sc, t):
 
 
 def scene_water(c, sc, t):
-    t_splash, t_freeze, t_scream, t_after = 0.6, 0.95, 2.9, 4.2
+    t_splash, t_freeze = 0.6, 0.95
+    t_scream, t_after = sc["events"]["scream"], sc["events"]["scream_end"]
     freeze = t_freeze <= t < t_scream
     if freeze:
         c.boil = 9999  # the whole world freezes
@@ -471,8 +472,8 @@ def scene_pose(c, sc, t):
 
 
 def scene_night(c, sc, t):
-    t_reach = seg(sc, 2)[1] - 0.55
-    t_off = seg(sc, 2)[1] + 0.1
+    t_off = sc["segments"][2]["post_end"] + 0.1
+    t_reach = t_off - 0.65
     c.rect(-10, -10, W + 20, 1420, (24, 26, 60), "nwall", shadow=False)
     for i in range(0, W, 90):
         c.thick_line((i + 45, 0), (i + 45, 1400), 14, (30, 33, 72), f"nstripe{i}", shadow=False)

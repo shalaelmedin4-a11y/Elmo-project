@@ -2,7 +2,7 @@
 # Build the full video: narration -> frames -> audio -> mp4
 set -euo pipefail
 cd "$(dirname "$0")"
-pip install -q piper-tts numpy pillow
+pip install -q chatterbox-tts faster-whisper librosa numpy pillow
 python3 narration.py
 rm -rf build/frames
 python3 render.py

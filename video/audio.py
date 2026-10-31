@@ -1,7 +1,7 @@
 """Synthesise music + cartoon sound effects and mix them with the narration."""
-import json, os, subprocess, sys, wave
+import json, os, wave
 import numpy as np
-from narration import BUILD, VOICE, SR, read_wav
+from narration import BUILD, SR
 
 TL = json.load(open(os.path.join(BUILD, "timeline.json")))
 SC = {s["name"]: s for s in TL["scenes"]}
@@ -129,17 +129,6 @@ def swish():
     return w * np.sin(np.linspace(0, np.pi, len(n))) * 0.12
 
 
-def scream():
-    path = os.path.join(BUILD, "scream.wav")
-    raw = path + ".raw.wav"
-    subprocess.run([sys.executable, "-m", "piper", "-m", VOICE, "-f", raw, "--length-scale", "2.2"],
-                   input="Aaaaaaaaaaaaah!".encode(), check=True, capture_output=True)
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", raw, "-af",
-                    "silenceremove=start_periods=1:start_threshold=-45dB,aresample=44100,"
-                    "rubberband=pitch=1.55:tempo=0.8,vibrato=f=9:d=0.4,volume=1.6", "-ac", "1", path], check=True)
-    return read_wav(path)
-
-
 # ------------------------------------------------------------------ music
 def pluck(freq, d, decay=0.996):
     n = int(d * SR)
@@ -218,9 +207,8 @@ def main():
     w = SC["water"]["start"]
     add(w + 0.6, splash(), 0.9)
     add(w + 0.95, freeze())
-    add(w + 2.9, scream(), 0.75)
     for k in range(4):
-        add(w + 4.3 + k * 0.33, sweep(1400, 2200, 0.05, amp=0.15))
+        add(w + SC["water"]["events"]["scream_end"] + 0.1 + k * 0.33, sweep(1400, 2200, 0.05, amp=0.15))
     c = SC["cream"]["start"]
     for i in range(12):
         add(c + 0.5 + i * 2.9 / 12, squirt(), 0.8)
@@ -248,7 +236,7 @@ def main():
         add(po["start"] + tsp + k * 0.42, chime())
         k += 1
     ni = SC["night"]
-    t_off = ni["start"] + ni["segments"][2]["end"] + 0.1
+    t_off = ni["start"] + ni["segments"][2]["post_end"] + 0.1
     add(t_off, click() * 1.5)
     for s in TL["scenes"][1:]:
         add(s["start"] - 0.05, swish())
