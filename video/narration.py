@@ -13,7 +13,10 @@ BUILD = os.path.join(HERE, "build")
 TAKES = os.path.join(BUILD, "takes")
 REF = os.path.join(HERE, "voice_ref.wav")   # teen timbre the model clones
 SR = 44100
-N_TAKES = 3
+MAX_TAKES = 6
+GOOD = 0.93
+NUMS = [("sechs uhr dreissig", "630 uhr"), ("zweiundzwanzig", "22"), ("vierzehn", "14"),
+        ("zwölf", "12"), ("hundert", "100")]
 _model = _whisper = None
 
 
@@ -87,8 +90,53 @@ def take(line, k):
 
 
 def norm(s):
-    s = s.lower().replace("ß", "ss")
-    return re.sub(r"[^a-zäöü0-9 ]", "", s).strip()
+    s = s.lower().replace("ß", "ss").replace("-", " ")
+    s = re.sub(r"[^a-zäöü0-9 ]", "", s)
+    for a, b in NUMS:
+        s = s.replace(a, b)
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def squeeze_pauses(a, max_gap=0.28):
+    """Shorten silences inside a take so the line flows like real speech."""
+    hop = int(0.01 * SR)
+    rms = np.sqrt(np.convolve(a ** 2, np.ones(hop) / hop, mode="same"))[::hop]
+    quiet = rms < 0.012
+    out, i, n = [], 0, len(quiet)
+    while i < n:
+        j = i
+        while j < n and quiet[j] == quiet[i]:
+            j += 1
+        chunk = a[i * hop: j * hop]
+        if quiet[i] and 0 < i and j < n and (j - i) * 0.01 > max_gap:
+            keep = int(max_gap * SR)
+            chunk = np.concatenate([chunk[: keep // 2], chunk[-keep // 2:]])
+        out.append(chunk)
+        i = j
+    return np.concatenate(out)
+
+
+def trim_to_line(a, line):
+    """Cut everything after the last expected word (the model sometimes keeps babbling)."""
+    _, ws = transcribe(a, words=True)
+    want = norm(line["tts"]).split()
+    if not ws or not want:
+        return a
+    last = want[-1]
+    ends = [w.end for w in ws if difflib.SequenceMatcher(None, norm(w.word), last).ratio() > 0.6]
+    if not ends:
+        return a
+    # first occurrence of the final word after enough words were spoken
+    cut = ends[0]
+    for w_end in ends:
+        if sum(1 for w in ws if w.end <= w_end) >= len(want) * 0.7:
+            cut = w_end
+            break
+    n = min(len(a), int((cut + 0.12) * SR))
+    out = a[:n].copy()
+    k = int(0.04 * SR)
+    out[-k:] *= np.linspace(1, 0, k)
+    return out
 
 
 def transcribe(a, words=False):
@@ -102,18 +150,21 @@ def transcribe(a, words=False):
 
 
 def best_take(line):
+    refs = [line["tts"], line["sub"]] + line.get("hear", [])
+    chars = len(norm(line["tts"]))
     best, best_score = None, -9
-    for k in range(N_TAKES):
-        a = take(line, k)
+    for k in range(MAX_TAKES):
+        a = squeeze_pauses(trim_to_line(take(line, k), line))
         dur = len(a) / SR
         text, _ = transcribe(a)
-        score = max(difflib.SequenceMatcher(None, norm(text), norm(ref)).ratio() for ref in (line["tts"], line["sub"]))
-        chars = len(norm(line["tts"]))
-        if dur > chars * 0.11 + 1.2 or dur < chars * 0.035:
-            score -= 0.5          # rushed or rambling take
+        score = max(difflib.SequenceMatcher(None, norm(text), norm(r)).ratio() for r in refs)
+        if dur > chars * 0.085 + 0.9 or dur < chars * 0.035:
+            score -= 0.3          # rushed or dragging take
         print(f"   take {k}: {score:.2f} {dur:.2f}s  '{text.strip()}'", flush=True)
         if score > best_score:
             best, best_score = a, score
+        if best_score >= GOOD:
+            break
     return best
 
 
@@ -178,7 +229,9 @@ def pick_scream():
         d = len(a) / SR
         if 1.0 < d < 3.2 and (best is None or np.abs(a).max() > np.abs(best).max()):
             best = a
-    return level(best if best is not None else take(SCREAM, 0)[: int(2.5 * SR)], 0.14)
+    a = squeeze_pauses(best if best is not None else take(SCREAM, 0), 0.15)[: int(1.9 * SR)].copy()
+    a[-int(0.15 * SR):] *= np.linspace(1, 0, int(0.15 * SR))
+    return level(a, 0.14)
 
 
 def main():
@@ -194,7 +247,7 @@ def main():
         for gi, line in enumerate(sc["segments"]):
             if sc["name"] == "water" and gi == 2:
                 # freeze, then the scream, then the line
-                ts = max(2.9, t + 0.3)
+                ts = max(2.6, t + 0.25)
                 track.append((t0 + ts, scream))
                 events = dict(scream=round(ts, 3), scream_end=round(ts + len(scream) / SR, 3))
                 t = ts + len(scream) / SR

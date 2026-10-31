@@ -16,21 +16,23 @@ FPS_OUT = 24
 W, H = 1080, 1920
 
 
-def L(tts, sub=None, pause=0.0, ex=0.6, pre=None, post=None, crack=None):
-    return dict(tts=tts, sub=sub or tts, pause=pause, ex=ex, pre=pre, post=post, crack=crack)
+def L(tts, sub=None, pause=0.0, ex=0.6, pre=None, post=None, crack=None, hear=()):
+    """hear: other spellings speech recognition may legitimately produce."""
+    return dict(tts=tts, sub=sub or tts, pause=pause, ex=ex, pre=pre, post=post, crack=crack, hear=list(hear))
 
 
 SCENES = [
     dict(name="alarm", min_dur=5.0, lead=1.6, tail=0.4, segments=[
         L("Sechs Uhr dreißig.", "6:30 Uhr.", ex=0.55, pre="breath"),
         L("Während ihr schlaft, beginnt mein Glow-up.", "Während ihr schlaft,\nbeginnt mein Glow-up.",
-          pause=0.4, ex=0.75, post="laugh", crack="Glow"),
+          pause=0.4, ex=0.75, post="laugh", crack="Glow",
+          hear=["Während ihr schlaft, beginnt mein Glow Up"]),
     ]),
     # scream happens between line 2 and 3 (see narration.py)
     dict(name="water", min_dur=5.0, lead=0.3, tail=0.4, segments=[
         L("Kaltes Wasser.", ex=0.6),
         L("Für die Kieferlinie.", pause=0.3, ex=0.7),
-        L("... Alles nach Plan.", "… Alles nach Plan.", pause=0.35, ex=0.35, pre="breath"),
+        L("Alles nach Plan.", "… Alles nach Plan.", pause=0.35, ex=0.35, pre="breath"),
     ]),
     dict(name="cream", min_dur=5.0, lead=0.3, tail=0.4, segments=[
         L("Zwölf Produkte.", ex=0.7),
@@ -45,18 +47,20 @@ SCENES = [
     # one push-up, collapse, awkward silence, then line 2
     dict(name="pushup", min_dur=6.0, lead=0.3, tail=0.6, segments=[
         L("Hundert Liegestütze.", ex=0.85, pre="breath"),
-        L("... Ungefähr.", "… Ungefähr.", pause=2.3, ex=0.3, pre="breath", crack="Ungefähr"),
+        L("Ungefähr.", "… Ungefähr.", pause=2.3, ex=0.3, pre="breath", crack="Ungefähr"),
     ]),
     dict(name="pose", min_dur=6.0, lead=0.4, tail=0.6, segments=[
-        L("Ich sehe ...", "Ich sehe …", ex=0.6, pre="breath"),
+        L("Ich sehe", "Ich sehe …", ex=0.6, pre="breath"),
         L("perfekt aus.", "… perfekt aus.", pause=0.6, ex=0.85),
         L("Die anderen haben keine Chance.", "Die anderen\nhaben keine Chance.", pause=0.35, ex=0.9,
           post="laugh", crack="Chance"),
     ]),
     dict(name="night", min_dur=7.0, lead=0.4, tail=1.5, segments=[
         L("Zweiundzwanzig Uhr.", "22 Uhr.", ex=0.4),
-        L("Schlaf ist der wahre Looksmaxx.", "Schlaf ist der wahre\nLooksmaxx.", pause=0.4, ex=0.55),
-        L("Gute Nacht, ihr Normies.", "Gute Nacht,\nihr Normies.", pause=0.45, ex=0.65, post="laugh"),
+        L("Schlaf ist der wahre Looksmaxx.", "Schlaf ist der wahre\nLooksmaxx.", pause=0.4, ex=0.55,
+          hear=["Schlaf ist der wahre Lux Max", "Schlaf ist der wahre Looks Max"]),
+        L("Gute Nacht, ihr Normies.", "Gute Nacht,\nihr Normies.", pause=0.45, ex=0.65, post="laugh",
+          hear=["Gute Nacht, ihr Normis"]),
     ]),
 ]
 
