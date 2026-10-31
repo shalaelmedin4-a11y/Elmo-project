@@ -25,7 +25,7 @@ SCENES = [
     dict(name="alarm", min_dur=5.0, lead=1.6, tail=0.4, segments=[
         L("Sechs Uhr dreißig.", "6:30 Uhr.", ex=0.55, pre="breath"),
         L("Während ihr schlaft, beginnt mein Glow-up.", "Während ihr schlaft,\nbeginnt mein Glow-up.",
-          pause=0.4, ex=0.75, post="laugh", crack="Glow",
+          pause=0.4, ex=0.75, post="laugh",
           hear=["Während ihr schlaft, beginnt mein Glow Up"]),
     ]),
     # scream happens between line 2 and 3 (see narration.py)
@@ -57,7 +57,7 @@ SCENES = [
     ]),
     dict(name="night", min_dur=7.0, lead=0.4, tail=1.5, segments=[
         L("Zweiundzwanzig Uhr.", "22 Uhr.", ex=0.4),
-        L("Schlaf ist der wahre Looksmaxx.", "Schlaf ist der wahre\nLooksmaxx.", pause=0.4, ex=0.55,
+        L("Schlaf ist der wahre Looks-Max.", "Schlaf ist der wahre\nLooksmaxx.", pause=0.4, ex=0.55,
           hear=["Schlaf ist der wahre Lux Max", "Schlaf ist der wahre Looks Max"]),
         L("Gute Nacht, ihr Normies.", "Gute Nacht,\nihr Normies.", pause=0.45, ex=0.65, post="laugh",
           hear=["Gute Nacht, ihr Normis"]),

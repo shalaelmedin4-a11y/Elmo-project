@@ -244,16 +244,19 @@ def main():
     mus = music(total)
     # ducking: music sits under the narrator, drops out for the awkward silence and at lights-out
     gain = np.full(n, 0.55)
+    fx_gain = np.ones(n)
     for s in TL["scenes"]:
         for g in s["segments"]:
             i0, i1 = int((s["start"] + g["start"] - 0.1) * SR), int((s["start"] + g["end"] + 0.1) * SR)
-            gain[i0:i1] = 0.3
+            gain[i0:i1] = 0.16
+            fx_gain[i0:i1] = 0.35
     gain[int((ps + 2.55) * SR): int((ps + p["segments"][1]["end"]) * SR)] = 0.0
     gain[int(t_off * SR):] = 0.0
     gain = lowpass(gain, int(0.08 * SR))
+    fx_gain = lowpass(fx_gain, int(0.05 * SR))
     gain[int(t_off * SR):] = 0.0
     fade = np.minimum(1, np.arange(n) / (0.5 * SR))
-    mix = narr * 1.0 + fx[:n] * 0.55 + mus * gain * fade * 0.5
+    mix = narr * 1.0 + fx[:n] * fx_gain * 0.55 + mus * gain * fade * 0.5
     mix = np.tanh(mix * 1.1) / np.tanh(1.1)
     mix *= 0.95 / np.abs(mix).max()
     pcm = (mix * 32767).astype(np.int16)
