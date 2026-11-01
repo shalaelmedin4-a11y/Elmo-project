@@ -1,0 +1,4 @@
+build/
+output/
+clips/*.mp4
+audio/*.wav

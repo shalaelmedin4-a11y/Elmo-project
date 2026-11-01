@@ -1,0 +1,26 @@
+[Script Info]
+Title: Ein Tag im Leben eines Soldaten
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Vlog,Inter ExtraBold,68,&H00FFFFFF,&H00FFFFFF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,5,2,2,50,50,560,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:01.60,0:00:03.40,Vlog,,0,0,0,,Fünf Uhr morgens.
+Dialogue: 0,0:00:03.40,0:00:07.60,Vlog,,0,0,0,,Hier gibt's keine\NSnooze-Taste.
+Dialogue: 0,0:00:09.00,0:00:11.40,Vlog,,0,0,0,,Antreten, dann laufen.\NJeden Tag.
+Dialogue: 0,0:00:11.40,0:00:14.70,Vlog,,0,0,0,,Egal, wie kalt es ist.
+Dialogue: 0,0:00:16.00,0:00:17.80,Vlog,,0,0,0,,Hindernisbahn.
+Dialogue: 0,0:00:17.80,0:00:22.60,Vlog,,0,0,0,,Hier merkst du, wer\Nwirklich durchzieht.
+Dialogue: 0,0:00:24.00,0:00:25.30,Vlog,,0,0,0,,Mittag.
+Dialogue: 0,0:00:25.30,0:00:29.70,Vlog,,0,0,0,,Die einzige halbe Stunde,\Nin der keiner schreit.
+Dialogue: 0,0:00:31.00,0:00:33.60,Vlog,,0,0,0,,Nachmittags Übung\Nim Gelände.
+Dialogue: 0,0:00:33.60,0:00:36.70,Vlog,,0,0,0,,Und dann wird's ernst.
+Dialogue: 0,0:00:38.00,0:00:40.20,Vlog,,0,0,0,,Morgen wieder um fünf.
+Dialogue: 0,0:00:40.20,0:00:44.80,Vlog,,0,0,0,,Folg mir, wenn du sehen willst,\Nwas morgen passiert.
