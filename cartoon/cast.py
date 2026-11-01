@@ -22,6 +22,22 @@ PINE_D = (24, 84, 56)
 FLAG_GREEN = (60, 170, 80)
 
 
+# lip-sync: [mouth level 0..1, frame index] set by render.py for every frame
+SPEAK = [0.0, 0]
+
+
+def hero_mouth(default):
+    """Halbo's mouth shape while he speaks (driven by the narration loudness)."""
+    lvl, f = SPEAK
+    if lvl > 0.55:
+        return "open" if f % 3 else "grin"
+    if lvl > 0.2:
+        return "o" if f % 2 else "grin"
+    if lvl > 0.08:
+        return "o"
+    return default
+
+
 def lerp(a, b, t):
     return a + (b - a) * t
 
@@ -103,6 +119,8 @@ def helmet(c, x, y, big=False, branches=False, sway=0):
 def soldier(c, x, y, s=1.0, rot=0, flip=False, hero=False, legs=(0, 0), arms=(18, 18), eyes="dot",
             mouth="smile", look=0, branches=False, sway=0, held=None, hand_r=None):
     """Short round soldier. Origin = between the feet. arms = outward raise in degrees."""
+    if hero:
+        mouth = hero_mouth(mouth)
     c.push(x, y, s, rot, flip)
     for side, ang in ((-1, legs[0]), (1, legs[1])):
         c.push(side * 20, -64, 1, ang)
@@ -134,6 +152,8 @@ def soldier(c, x, y, s=1.0, rot=0, flip=False, hero=False, legs=(0, 0), arms=(18
 
 def sleeper(c, x, y, s=1.0, hero=False, blanket=(150, 70, 70), eyes="closed", mouth="flat", awake=False):
     """Soldier lying in a bed seen from the front: head on pillow, blanket over body."""
+    if hero:
+        mouth = hero_mouth(mouth)
     c.push(x, y, s, 0)
     c.rrect(-120, -40, -30, 10, 18, WHITE, w=4)          # pillow
     c.push(-78, -40, 0.82, -78 if not awake else -12)

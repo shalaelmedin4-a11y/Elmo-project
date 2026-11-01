@@ -1,21 +1,34 @@
-# Sprecher-Text (Cartoon-Version)
+# Stimme & Lippensynchronisation
 
-Junger Mann, natürlich, entspannt, ein bisschen witzig und stolz. Echte Pausen,
-hörbares Atmen, Grinsen in der Stimme. Kein Vorlese-Ton, keine Computerstimme.
-Jede Zeile als eigene Datei aufnehmen (Handy reicht, ruhiger Raum, 15–20 cm
-Abstand) und als `cartoon/voice/vo0.wav` … `vo6.wav` ablegen, dann
-`./cartoon/build.sh` ausführen.
+Die Erzählung besteht aus 14 Satzteilen (`cartoon/voice/cue_00.wav` … `cue_13.wav`).
+Jeder Satzteil liegt exakt auf seinem Untertitel. Halbos Mund bewegt sich Bild für
+Bild mit der Lautstärke der Stimme (`build/lipsync.json`).
 
-| Datei | Start | max. Länge | Text | Regie |
-|---|---|---|---|---|
-| vo0.wav | 0:00.35 | 3.4 s | „Ein Tag als Soldat … mit Halbo!“ | Intro: weich, jugendlich, euphorisch, ein bisschen witzig; kurze Pause vor „mit Halbo!“, das strahlend |
-| vo1.wav | 0:05.0 | 6.5 s | „Fünf Uhr morgens. … Hier gibt's keine Snooze-Taste.“ | verschlafen, dann trocken-witzig |
-| vo2.wav | 0:12.8 | 5.8 s | „Antreten, dann laufen. … Jeden Tag.“ | leicht außer Atem, „Jeden Tag“ resigniert-stolz |
-| vo3.wav | 0:19.6 | 7.0 s | „Hindernisbahn. … Hier merkst du, wer wirklich durchzieht.“ | angestrengt, „wirklich“ betonen |
-| vo4.wav | 0:27.6 | 6.0 s | „Mittag. … Die einzige halbe Stunde, in der keiner schreit.“ | locker, Augenzwinkern |
-| vo5.wav | 0:34.6 | 6.0 s | „Nachmittags Übung im Gelände. … Und dann wird's ernst.“ | ruhiger, „ernst“ leise und tief |
-| vo6.wav | 0:41.6 | 7.0 s | „Morgen wieder um fünf. … Folg mir für Tag zwei.“ | müde, warm, letzter Satz direkt an die Zuschauer |
+**Aktuell:** neuronale KI-Stimme (Microsoft „Florian“, junger Mann, Deutsch),
+erzeugt von `cartoon/voice.py`, mit leisen Atemgeräuschen vor einigen Sätzen.
+Sie klingt natürlicher als klassisches Text-to-Speech, ist aber keine echte
+menschliche Aufnahme.
 
-`…` = kurze natürliche Pause. Alternative ohne Dateien: das Video in TikTok
-hochladen und dort mit der Funktion **Voiceover** direkt drüber sprechen – die
-Untertitel zeigen dir, wann welcher Satz kommt.
+**Durch eine echte Stimme ersetzen:** jeden Satzteil einzeln aufnehmen (Handy reicht,
+ruhiger Raum, 15–20 cm Abstand), als WAV unter dem gleichen Namen speichern und
+`RERENDER=1 ./cartoon/build.sh` ausführen. Stille am Anfang/Ende wird automatisch
+abgeschnitten; Untertitel-Dauer und Mundbewegung passen sich an.
+
+| Datei | Start | Text | Regie |
+|---|---|---|---|
+| cue_00 | 0:00.4 | Ein Tag als Soldat … | Intro: weich, jugendlich, euphorisch |
+| cue_01 | 0:02.3 | mit Halbo! | strahlend, ein bisschen albern |
+| cue_02 | 0:05.0 | Fünf Uhr morgens. | verschlafen |
+| cue_03 | 0:07.5 | Hier gibt's keine Snooze-Taste. | trocken-witzig |
+| cue_04 | 0:12.8 | Antreten, dann laufen. | sachlich, leicht außer Atem |
+| cue_05 | 0:15.8 | Jeden Tag. | resigniert-stolz |
+| cue_06 | 0:19.6 | Hindernisbahn! | angestrengt |
+| cue_07 | 0:21.6 | Hier merkst du, wer wirklich durchzieht. | „wirklich“ betonen, stolz |
+| cue_08 | 0:27.6 | Mittag. | locker |
+| cue_09 | 0:29.2 | Die einzige halbe Stunde, in der keiner schreit. | Augenzwinkern |
+| cue_10 | 0:34.6 | Nachmittags Übung im Gelände. | ruhiger, fokussiert |
+| cue_11 | 0:37.6 | Und dann wird's ernst. | leise, tief |
+| cue_12 | 0:41.6 | Morgen wieder um fünf. | müde, warm |
+| cue_13 | 0:44.4 | Folg mir für Tag zwei! | direkt an die Zuschauer, Lächeln |
+
+Startzeiten ändern: `CUES` in `cartoon/voice.py`.

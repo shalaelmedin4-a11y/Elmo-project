@@ -383,7 +383,7 @@ def truck(c, x, y, t, s=1.0):
         hero = i == 1
         c.push(hx, -135 + bob, .55)
         c.ell(0, -40, 54, 62, SKIN)
-        face(c, 0, -34, "wide" if hero else "dot", "flat")
+        face(c, 0, -34, "wide" if hero else "dot", hero_mouth("flat") if hero else "flat")
         helmet(c, 0, -62, big=hero)
         c.pop()
     c.rect(-290, -140, 30, -30, (80, 120, 60), w=6)
@@ -434,7 +434,7 @@ def scene5(c, t):
             hero = i == 1
             c.push(x, 1600 + duck + (10 if hero else 0), 1.1)
             c.ell(0, -40, 54, 62, SKIN)
-            face(c, 0, -34, "wide" if hero else "dot", "flat", look=look)
+            face(c, 0, -34, "wide" if hero else "dot", hero_mouth("flat") if hero else "flat", look=look)
             helmet(c, 0, -62, big=hero, branches=True, sway=4 * math.sin(t * 3 + i))
             c.pop()
         if lt > 1.0 and duck == 0:

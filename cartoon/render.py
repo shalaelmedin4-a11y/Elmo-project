@@ -3,6 +3,7 @@
 
 usage: python3 render.py [out.mp4] [--frames a:b] [--still t1,t2,...]
 """
+import json
 import math
 import os
 import subprocess
@@ -11,6 +12,7 @@ from multiprocessing import Pool
 
 import numpy as np
 
+import cast
 from cast import INK, WHITE, lerp
 from paper import H, W, Ctx, composite, make_paper_texture, subtitle
 from scenes import INTRO, LAMP, SCENES, SUB_Y, SUBS, intro
@@ -20,9 +22,25 @@ DUR = 49.0  # 4 s intro + 45 s story
 TEX = None
 
 
+LIPS = None
+SUBTITLES = []   # (start, end, text) in final-video time, from the voice cues
+
+
 def _init():
-    global TEX
+    global TEX, LIPS, SUBTITLES
     TEX = make_paper_texture()
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    try:
+        with open(os.path.join(root, "build", "lipsync.json")) as fh:
+            data = json.load(fh)
+        LIPS = data["level"]
+        cues = data["cues"]
+    except OSError:
+        from voice import CUES
+        cues = [{"start": c[0], "end": c[0] + 2.0, "text": c[1]} for c in CUES]
+    for i, cu in enumerate(cues):
+        nxt = cues[i + 1]["start"] - 0.05 if i + 1 < len(cues) else DUR
+        SUBTITLES.append((cu["start"] - 0.08, min(nxt, max(cu["end"] + 0.9, cu["start"] + 1.6)), cu["text"]))
 
 
 def radial_grade(cx, cy, warm=(1.12, 1.0, 0.82), cold=(0.42, 0.48, 0.78), r=760):
@@ -52,12 +70,23 @@ def clock(c, txt):
     c.pop()
 
 
+def subs(img, t_abs):
+    for a, b, txt in SUBTITLES:
+        if a <= t_abs < b:
+            subtitle(img, txt, y=330 if t_abs < INTRO else SUB_Y)
+
+
 def frame(f):
     t = f / FPS
+    cast.SPEAK[0] = LIPS[f] if LIPS and f < len(LIPS) else 0.0
+    cast.SPEAK[1] = f
     if t < INTRO:
         c = Ctx(f)
         grade = np.array(intro(c, t), np.float32)
-        return np.asarray(composite(c, TEX, grade)).tobytes()
+        img = composite(c, TEX, grade)
+        subs(img, t)
+        return np.asarray(img).tobytes()
+    t_abs = t
     t -= INTRO
     for start, end, stamp, fn in SCENES:
         if start <= t < end or (fn is SCENES[-1][3] and t >= start):
@@ -77,9 +106,7 @@ def frame(f):
         grade = np.array(grade, np.float32)
     clock(c, stamp)
     img = composite(c, TEX, grade)
-    for a, b, txt in SUBS:
-        if a <= t < b:
-            subtitle(img, txt, y=SUB_Y)
+    subs(img, t_abs)
     return np.asarray(img).tobytes()
 
 

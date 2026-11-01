@@ -43,11 +43,13 @@ cartoon/cast.py     eigene Figuren (Soldat, Ausbilder) und Kulissen (Baracke, Ze
 cartoon/scenes.py   die 6 Szenen (je 2 Einstellungen mit harten Schnitten), Untertitel-Timing
 cartoon/render.py   rendert 12 fps (Stop-Motion), Ausgabe 1080x1920 / 30 fps H.264
 cartoon/audio.py    Marschmusik (leise, Spannung steigt in Szene 5), Atmo und Cartoon-SFX
-cartoon/build.sh    alles bauen + mischen; fügt Sprachaufnahmen aus cartoon/voice/ ein, wenn vorhanden
+cartoon/voice.py    Sprachspur (14 Cues, KI-Stimme oder eigene Aufnahmen) + Lippensync-Daten
+cartoon/build.sh    alles bauen + mischen
 cartoon/STIMME.md   Sprechertext mit Startzeiten und Regie
 ```
 
-`./cartoon/build.sh` → `output/ein_tag_soldat_cartoon_ohne_stimme.mp4`, bzw. mit
-`cartoon/voice/vo0.wav … vo6.wav` → `output/ein_tag_soldat_cartoon.mp4`
-(Stimme auf −14 LUFS, Musik/Atmo werden darunter automatisch abgesenkt).
-Neu rendern nach Änderungen an den Szenen: `RERENDER=1 ./cartoon/build.sh`.
+`./cartoon/build.sh` → `output/ein_tag_als_soldat_mit_halbo.mp4` (49 s, mit Stimme,
+lippensynchron, Untertitel aus den Sprach-Cues). Stimme: `cartoon/voice.py` +
+`cartoon/STIMME.md` (eigene Aufnahmen einfach als `cartoon/voice/cue_XX.wav` ablegen).
+Stimme auf −14 LUFS, Musik/Atmo werden darunter automatisch abgesenkt.
+Neu rendern nach Änderungen: `RERENDER=1 ./cartoon/build.sh`.
