@@ -520,3 +520,122 @@ SCENES = [
     (30.0, 37.0, "15:00", scene5),
     (37.0, 45.0, "21:00", scene6),
 ]
+
+
+# ============================================================ INTRO (0-4 s, before scene 1)
+INTRO = 4.0
+SIGNS = [  # (land time, y, w, h, paper colour, text colour, text, size)
+    (0.35, 560, 560, 190, (250, 247, 238), INK, "EIN TAG", 128),
+    (1.00, 790, 760, 190, (92, 168, 76), (255, 255, 255), "ALS SOLDAT", 120),
+    (2.25, 1040, 700, 210, (214, 52, 52), (255, 255, 255), "mit Halbo!", 128),
+]
+
+
+def _torn(w, h, seed):
+    """Fixed jagged outline of a torn paper sheet (local coords, centred)."""
+    r = np.random.default_rng(seed)
+    pts = []
+    for x in np.linspace(-w / 2, w / 2, 22):
+        pts.append((x, -h / 2 + r.uniform(-9, 9)))
+    for y in np.linspace(-h / 2, h / 2, 8)[1:]:
+        pts.append((w / 2 + r.uniform(-10, 10), y))
+    for x in np.linspace(w / 2, -w / 2, 22)[1:]:
+        pts.append((x, h / 2 + r.uniform(-9, 9)))
+    for y in np.linspace(h / 2, -h / 2, 8)[1:-1]:
+        pts.append((-w / 2 + r.uniform(-10, 10), y))
+    return pts
+
+
+def base_from_above(c, t):
+    """Top-down view of the little cartoon base in warm morning light."""
+    c.layer = "bg"
+    c.rect(-400, -1000, 1500, 3000, (118, 176, 82), ol=None, jit=False)
+    for k in range(40):
+        x, y = (k * 389) % 1300 - 100, (k * 677) % 2300 - 200
+        c.ell(x, y, 30, 18, (104, 160, 72), ol=None, jit=False, n=12)
+    c.layer = "mid"
+    # sandy paths
+    c.poly([(470, -400), (610, -400), (610, 2400), (470, 2400)], (222, 196, 140), w=5)
+    c.poly([(-400, 1290), (1500, 1220), (1500, 1340), (-400, 1410)], (222, 196, 140), w=5)
+    # parade ground with flagpole (seen from above)
+    c.ell(540, 1310, 190, 120, (210, 184, 128), w=5)
+    c.ell(540, 1310, 14, 14, (200, 200, 210), w=4, n=12)
+    wave = 8 * math.sin(t * 6)
+    c.poly([(554, 1306), (660, 1290 + wave), (660, 1330 + wave), (554, 1318)], FLAG_GREEN, w=4)
+    # tents from above (squares with a ridge)
+    for x, y in ((140, 300), (330, 300), (140, 520), (330, 520), (760, 1560), (950, 1560), (760, 1780)):
+        c.rect(x - 75, y - 60, x + 75, y + 60, (86, 132, 62), w=5)
+        c.line([(x - 75, y), (x + 75, y)], 4, (48, 76, 36))
+    # barracks roofs
+    for x, y in ((830, 330), (830, 620)):
+        c.rect(x - 180, y - 90, x + 180, y + 90, (176, 70, 56), w=6)
+        c.line([(x - 180, y), (x + 180, y)], 5, (120, 44, 36))
+        for k in range(1, 6):
+            c.line([(x - 180 + k * 60, y - 90), (x - 180 + k * 60, y + 90)], 2, (150, 56, 46))
+    # training field with obstacle wall and net
+    c.rect(60, 1550, 420, 1900, (196, 168, 110), w=5)
+    c.rect(120, 1610, 360, 1640, WOOD, w=4)
+    for k in range(6):
+        c.line([(120 + k * 48, 1720), (160 + k * 48, 1840)], 3, (60, 70, 40))
+    # pine trees from above
+    for x, y in ((40, 980), (130, 1080), (980, 900), (1050, 1050), (60, 60), (1000, 1000), (920, 1180)):
+        star(c, x, y, 70, PINE, pts_n=8, w=5)
+        c.ell(x, y, 22, 22, PINE_D, w=3, n=12)
+    # tiny soldiers marching along the path (helmets from above)
+    for i in range(6):
+        y = (2000 - t * 120 - i * 75)
+        c.ell(540, y, 26, 26, HELM, w=4, n=14)
+        c.ell(540, y + 4, 14, 8, HELM_D, ol=None, n=10)
+        c.ell(540 + 28 * ((i % 2) * 2 - 1), y, 9, 9, SKIN, w=3, n=8)
+
+
+def intro(c, t):
+    # slight slow zoom over the base; tiny shake right after each sign lands
+    shake = 0
+    for land, *_ in SIGNS:
+        if 0 <= t - land < 0.17:
+            shake = 10 if int((t - land) * 12) % 2 == 0 else -10
+    c.cam = (540 + shake, 960 - shake * .6, 1.0 + 0.05 * t / INTRO)
+    base_from_above(c, t)
+    c.cam = (540 + shake, 960, 1.0)
+    c.layer = "ui"
+    for i, (land, y, w, h, paper, ink, txt, size) in enumerate(SIGNS):
+        if t < land - 0.17:
+            continue
+        p = (t - land) / 0.17          # 2 frames falling in, then a small overshoot bounce
+        if p < 0:
+            s = 2.0 + (-p) * 1.2
+        elif p < 1:
+            s = 0.92
+        elif p < 2:
+            s = 1.04
+        else:
+            s = 1.0
+        rot = (-3, 2, -2)[i]
+        c.push(540, y, s, rot)
+        c.poly(_torn(w, h, 11 + i), paper, w=6)
+        c.pop()
+        c.push(540, y, s, 0)
+        c.text(0, 4, txt, size, fill=ink, stroke=5 if i else 0, stroke_fill=INK)
+        c.pop()
+        if 0 <= p < 2:  # paper dust on impact
+            for k in range(4):
+                a = k * math.pi / 2 + .6
+                puff(c, 540 + math.cos(a) * (w / 2 + 20), y + math.sin(a) * (h / 2 + 10), 18, (250, 245, 230))
+        if i == 2:
+            for k in range(7):
+                a = k * 2 * math.pi / 7 + t * 1.5
+                tw = 0.6 + 0.4 * math.sin(t * 9 + k * 2)
+                star(c, 540 + math.cos(a) * 420, y + math.sin(a) * 170, 20 * tw + 6, (255, 228, 80), w=4)
+    # Halbo pops up below the signs and salutes
+    if t >= 2.7:
+        p = (t - 2.7) / 0.25
+        y = 2250 if p < 1 else (1760 if p < 2 else 1800)
+        salute = t >= 3.05
+        c.layer = "fg"
+        soldier(c, 540, y, 1.45, hero=True, arms=(12, 165 if salute else 60),
+                eyes="happy" if salute else "wide", mouth="grin" if salute else "o")
+        if 3.05 <= t < 3.4:
+            star(c, 700, 1300, 26, (255, 240, 120))
+    c.layer = "mid"
+    return (1.1, 1.0, 0.88)

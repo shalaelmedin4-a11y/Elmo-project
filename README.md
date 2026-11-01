@@ -35,7 +35,7 @@ Needs `ffmpeg` with libass + freetype.
 
 ---
 
-## Cartoon-Version (Papier-Cutout, komplett hier gerendert)
+## Cartoon-Version (Papier-Cutout, komplett hier gerendert, 49 s = 4 s Intro „Ein Tag als Soldat … mit Halbo!“ + 45 s)
 
 ```
 cartoon/paper.py    Zeichen-Kit: Papierformen, dicke Konturen, Stop-Motion-"Wackeln", Papierschatten & -textur
@@ -48,6 +48,6 @@ cartoon/STIMME.md   Sprechertext mit Startzeiten und Regie
 ```
 
 `./cartoon/build.sh` → `output/ein_tag_soldat_cartoon_ohne_stimme.mp4`, bzw. mit
-`cartoon/voice/vo1.wav … vo6.wav` → `output/ein_tag_soldat_cartoon.mp4`
+`cartoon/voice/vo0.wav … vo6.wav` → `output/ein_tag_soldat_cartoon.mp4`
 (Stimme auf −14 LUFS, Musik/Atmo werden darunter automatisch abgesenkt).
 Neu rendern nach Änderungen an den Szenen: `RERENDER=1 ./cartoon/build.sh`.

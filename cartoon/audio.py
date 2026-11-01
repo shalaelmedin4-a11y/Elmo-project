@@ -10,7 +10,8 @@ import wave
 import numpy as np
 
 SR = 48000
-DUR = 45.0
+INTRO = 4.0
+DUR = 49.0  # 4 s intro + 45 s story
 N = int(SR * DUR)
 rng = np.random.default_rng(7)
 
@@ -36,12 +37,13 @@ def env(n, a=0.005, r=0.1):
 
 
 class Track:
-    def __init__(self):
+    def __init__(self, off=0.0):
+        self.off = off
         self.L = np.zeros(N)
         self.R = np.zeros(N)
 
     def add(self, sig, at, gain=1.0, pan=0.0):
-        i = int(at * SR)
+        i = int((at + self.off) * SR)
         if i >= N:
             return
         sig = sig[: N - i] * gain
@@ -208,7 +210,7 @@ def pad(freqs, d):
 
 
 def music():
-    tr = Track()
+    tr = Track(INTRO)
     bpm = 100
     beat = 60 / bpm
     D2, A1, F2, C2, Bb1, E2 = 73.42, 55.0, 87.31, 65.41, 58.27, 82.41
@@ -216,7 +218,7 @@ def music():
     n_beats = int(DUR / beat)
     for b in range(n_beats):
         tb = b * beat
-        if tb > 44.0:
+        if tb > 44.0 - 0:
             break
         intensity = 0.55 + 0.45 * min(1, tb / 30)       # slow build ...
         if 30 <= tb < 37:
@@ -246,7 +248,7 @@ def music():
 
 # ---------------------------------------------------------------- ambience + sfx
 def sfx():
-    tr = Track()
+    tr = Track(INTRO)
     # scene 1 -- 05:00
     tr.add(room_tone(8), 0, .05)
     tr.add(whoosh(.5), .65, .10)
@@ -318,8 +320,50 @@ def sfx():
     return tr
 
 
+def paper_thump():
+    d = .35
+    t = t_axis(d)
+    low = np.sin(2 * np.pi * (95 - 40 * t) * t) * np.exp(-t * 18)
+    rustle = band(noise(d), 1500, 7000) * np.exp(-t * 22) * .5
+    return norm(low + rustle)
+
+
+def sparkle(d=1.3):
+    out = np.zeros(int(d * SR))
+    for k in range(14):
+        b = blip(rng.uniform(2600, 5200), .18)
+        i = int(rng.uniform(0, d - .2) * SR)
+        out[i:i + len(b)] += b * rng.uniform(.4, 1)
+    return norm(out)
+
+
+def intro_track():
+    tr = Track(0)
+    for at in (0.35, 1.0, 2.25):                       # signs slam in
+        tr.add(paper_thump(), at, .34)
+        tr.add(whoosh(.25), at - .2, .07)
+    tr.add(sparkle(), 2.3, .07, .2)
+    tr.add(boing(.35, 300, 700), 2.7, .16)              # Halbo pops up
+    tr.add(blip(1760, .4), 3.05, .08)                   # salute
+    # light, upbeat march count-in, then a soft major "ta-da" on the red sign
+    beat = 60 / 100
+    for b in range(6):
+        tr.add(snare(soft=.6), b * beat * .5 + .1, .07, .2)
+    for k in range(8):
+        tr.add(snare(soft=.4), 1.9 + k * .045, .05, .2)
+    for f, a in ((146.8, .5), (185.0, .35), (220.0, .35), (293.7, .25)):
+        tr.add(pluck(f, 1.2), 2.25, a * .45)
+    tr.add(pad([146.8, 185.0, 220.0], 1.75) * np.linspace(.12, 0, int(1.75 * SR)), 2.25)
+    # morning birds over the base
+    for _ in range(8):
+        tr.add(chirp_bird(), rng.uniform(0, 4), .04, rng.uniform(-.8, .8))
+    return tr
+
+
 def main(out):
-    m, s = music(), sfx()
+    m, s, it = music(), sfx(), intro_track()
+    m.L += it.L
+    m.R += it.R
     fade = np.ones(N)
     fade[-int(.6 * SR):] = np.linspace(1, 0, int(.6 * SR))
     L = (m.L + s.L) * fade

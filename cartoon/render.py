@@ -13,10 +13,10 @@ import numpy as np
 
 from cast import INK, WHITE, lerp
 from paper import H, W, Ctx, composite, make_paper_texture, subtitle
-from scenes import LAMP, SCENES, SUB_Y, SUBS
+from scenes import INTRO, LAMP, SCENES, SUB_Y, SUBS, intro
 
 FPS = 12
-DUR = 45.0
+DUR = 49.0  # 4 s intro + 45 s story
 TEX = None
 
 
@@ -54,6 +54,11 @@ def clock(c, txt):
 
 def frame(f):
     t = f / FPS
+    if t < INTRO:
+        c = Ctx(f)
+        grade = np.array(intro(c, t), np.float32)
+        return np.asarray(composite(c, TEX, grade)).tobytes()
+    t -= INTRO
     for start, end, stamp, fn in SCENES:
         if start <= t < end or (fn is SCENES[-1][3] and t >= start):
             break
