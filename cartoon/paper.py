@@ -50,6 +50,7 @@ class Ctx:
         self.cam = cam
         self.rng = random.Random(frame * 7919 + 17)
         self.boil = 1.4
+        self.wmul = 1.0          # outline-width multiplier (for very large figures)
 
     # ---- transform stack -------------------------------------------------
     def push(self, x=0, y=0, s=1, rot=0, flip=False):
@@ -81,7 +82,7 @@ class Ctx:
     # ---- primitives ------------------------------------------------------
     def poly(self, pts, fill, ol=INK, w=5, jit=True):
         P = self.tf(pts, jit)
-        wd = max(1, int(round(w * self.scale() / SS * SS))) if ol else 0
+        wd = max(1, int(round(w * self.wmul * self.scale()))) if ol else 0
         self.drw[self.layer].polygon(P, fill=fill, outline=ol if ol else None, width=wd)
 
     def ell(self, cx, cy, rx, ry, fill, ol=INK, w=5, n=30, a0=0, a1=360, jit=True):
@@ -102,7 +103,7 @@ class Ctx:
 
     def line(self, pts, w=5, col=INK, jit=True):
         P = self.tf(pts, jit)
-        self.drw[self.layer].line(P, fill=col, width=max(1, int(w * self.scale())), joint="curve")
+        self.drw[self.layer].line(P, fill=col, width=max(1, int(w * self.wmul * self.scale())), joint="curve")
 
     def arc(self, cx, cy, rx, ry, a0, a1, w=5, col=INK):
         pts = [(cx + rx * math.cos(math.radians(a)), cy + ry * math.sin(math.radians(a)))
