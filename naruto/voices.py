@@ -15,8 +15,8 @@ if os.path.exists(_CA):
 
 # speaker -> (voice, rate, pitch)
 VOICES = {
-    "naruto":  ("de-DE-FlorianMultilingualNeural", "+10%", "+65Hz"),   # young, cheeky
-    "naruto_q": ("de-DE-FlorianMultilingualNeural", "-8%", "+55Hz"),   # quiet, at night
+    "naruto":  ("de-DE-FlorianMultilingualNeural", "+8%", "+28Hz"),    # young, cheeky – not squeaky
+    "naruto_q": ("de-DE-FlorianMultilingualNeural", "-8%", "+20Hz"),   # quiet, at night
     "sakura":  ("de-DE-AmalaNeural", "+6%", "+25Hz"),
     "sasuke":  ("de-DE-KillianNeural", "-10%", "+30Hz"),
     "iruka":   ("de-DE-ConradNeural", "+4%", "+5Hz"),
