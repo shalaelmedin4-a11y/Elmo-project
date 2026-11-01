@@ -1,0 +1,12 @@
+build/
+output/
+clips/*.mp4
+audio/*.wav
+cartoon/__pycache__/
+build_render.log
+kpop/__pycache__/
+build_k.log
+kstar/__pycache__/
+build_ks.log
+kstar2/__pycache__/
+build_k2.log
