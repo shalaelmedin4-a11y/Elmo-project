@@ -78,7 +78,8 @@ def frame(f):
             break
     c = Ctx(f)
     look = FUNCS[sc["name"]](c, t - sc["start"], sc["end"] - sc["start"], sc["cues"])
-    clock_left(c, sc["clock"])           # the only text in the video (no subtitles)
+    if sc["clock"]:                      # no clock in the intro: never two texts at once
+        clock_left(c, sc["clock"])
     img = apply_look(composite(c, TEX, None), look)
     return np.asarray(img).tobytes()
 

@@ -22,7 +22,7 @@ for m in (A, K):
     m.DUR = DUR
     m.N = int(DUR * A.SR)
 SR, N = A.SR, A.N
-BRIGHT = {"fans", "concert"}
+BRIGHT = {"intro", "fans", "concert"}
 
 
 def main(out):
@@ -40,6 +40,10 @@ def main(out):
     L = br.L * gb + dk.L * gd
     R = br.R * gb + dk.R * gd
     ch = A.Track()
+    intro = TL["scenes"][0]
+    c1 = intro["cues"]
+    for t0 in (0.0, c1[0][0] + 0.45 * (c1[0][1] - c1[0][0]), c1[1][0]):   # very soft paper thump per sign
+        ch.add(A.paper_thump(), t0, .10)
     ch.add(A.ding(), DUR - 1.6, .03)
     L, R = L * .5 + ch.L, R * .5 + ch.R
     fade = np.ones(N)

@@ -27,6 +27,8 @@ SR, FPS = V.SR, 12
 # scene: (name, minimum length, clock, [(text, rate, pitch, breath)])
 R, P = "-16%", "+2Hz"     # slow, calm, very clear
 SCENES = [
+    ("intro", 4.5, None, [("Ein Tag im Leben eines Kei-Pop-Stars …", "-6%", "+10Hz", False),
+                          ("mit Halbo!", "-4%", "+16Hz", False)]),
     ("bed", 6.0, "05:00", [("Fünf Uhr.", R, "+4Hz", True),
                            ("Ich hab nur drei Stunden geschlafen.", R, P, False)]),
     ("kitchen", 6.0, "06:00", [("Frühstück.", R, "+4Hz", True),

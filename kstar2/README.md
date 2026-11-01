@@ -1,4 +1,6 @@
-# Ein Tag als K-Pop-Star – Version 2 (Papier-Cutout, ~60 s, 9:16)
+# Ein Tag als K-Pop-Star – Version 2 (Papier-Cutout, ~65 s, 9:16)
+
+Intro: „EIN TAG IM LEBEN“ → „EINES K-POP-STARS“ → „mit Halbo!“ (einzeln nacheinander, ohne Uhr-Schild).
 
 Fiktive Figuren und Firma. **Feste Bildaufteilung:** Halbo immer exakt in der
 Mitte, von den Knien aufwärts, ca. zwei Drittel der Bildhöhe, in jeder Szene
@@ -8,7 +10,7 @@ großen Objekten, höchstens 1–2 kleine Nebenfiguren am Rand.
 
 | Datei | Inhalt |
 |---|---|
-| `k2voice.py` | 19 kurze Sätze, langsam & deutlich (KI-Stimme „Seraphina“), Pause nach jedem Satz; erzeugt die Timeline |
+| `k2voice.py` | Intro + 19 kurze Sätze, langsam & deutlich (KI-Stimme „Seraphina“), Pause nach jedem Satz; erzeugt die Timeline |
 | `k2cast.py` | große Halbo-Figur: große Augen (Blinzeln, Blickrichtung, Brauen), Arme mit Ellbogen (IK) für Gesten |
 | `k2scenes.py` | 9 Szenen, je eine klare Handlung |
 | `k2render.py` | Rendering (12 fps Stop-Motion), Lippensync, Uhr oben links |

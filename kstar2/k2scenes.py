@@ -276,5 +276,55 @@ def night(c, t, L, cues):
     return dict(sat=0.5, tint=(0.62, 0.66, 0.9), spot=(540, 1150, 900, .5))
 
 
-FUNCS = dict(bed=bed, kitchen=kitchen, makeup=makeup, dance=dance, studio=studio, fans=fans, concert=concert,
+# ---------------------------------------------------------------- INTRO
+from ksscenes import _torn  # noqa: E402  (torn-paper outline)
+
+INTRO_SIGNS = [  # paper, ink, text, size, width
+    ((250, 247, 238), INK, "EIN TAG IM LEBEN", 100, 960),
+    (PINK, (255, 255, 255), "EINES K-POP-STARS", 100, 1000),
+    ((214, 40, 60), (255, 255, 255), "mit Halbo!", 128, 720),
+]
+SIGN_Y = 400
+
+
+def intro(c, t, L, cues):
+    """Pink stage, Halbo big in the centre; three paper signs, strictly one at a time."""
+    c.cam = (540, 960, 1.0)
+    bands(c, [(70, 20, 120), (110, 30, 150), (160, 45, 175), (210, 70, 180), (250, 110, 195)], 0, 1700)
+    c.layer = "bg"
+    c.poly([(470, -50), (610, -50), (900, 1900), (180, 1900)], (255, 200, 236), ol=None)
+    c.layer = "mid"
+    sparkles(c, t, 8, seed=12, area=(60, 620, 1020, 1100), col=(255, 250, 220))
+    (a1, e1), (a2, _) = cues[0], cues[1]
+    windows = [(0.0, a1 + 0.45 * (e1 - a1)), (a1 + 0.45 * (e1 - a1), a2), (a2, L + 1)]
+    c.layer = "fg"
+    pose = t >= a2 + 0.2
+    if pose:
+        popstar(c, t, "jacket", hands=((-118, -330), (40, -250)), eyes="happy", mouth="grin", brows="up", sway=-3)
+    else:
+        popstar(c, t, "jacket", hands=((-75, -70), (110, -270 + osc(t, 2.5, 14))), eyes="open", mouth="smile",
+                brows="up", bob=-3 * (int(t * 4) % 2))
+    c.layer = "ui"
+    for i, (wa, wb) in enumerate(windows):
+        if wa <= t < wb - 0.09:        # one sign at a time, one empty frame between signs
+            paper, ink, txt, size, w = INTRO_SIGNS[i]
+            k = int((t - wa) * 12 + 1e-6)
+            sc = (1.6, 0.92, 1.04)[k] if k < 3 else 1.0
+            c.push(540, SIGN_Y, sc, (-3, 2, -2)[i])
+            c.poly(_torn(w, 200, 41 + i), paper, w=6)
+            c.pop()
+            c.push(540, SIGN_Y, sc, 0)
+            c.text(0, 4, txt, size, fill=ink, stroke=5 if i else 0, stroke_fill=INK)
+            c.pop()
+            if i == 2:
+                for k2 in range(6):
+                    ang = k2 * 2 * math.pi / 6 + t * 1.5
+                    tw = 0.6 + 0.4 * math.sin(t * 9 + k2 * 2)
+                    star(c, 540 + math.cos(ang) * 430, SIGN_Y + math.sin(ang) * 170, 20 * tw + 6, (255, 236, 120), w=4)
+            break
+    c.layer = "mid"
+    return dict(PINK_LOOK)
+
+
+FUNCS = dict(intro=intro, bed=bed, kitchen=kitchen, makeup=makeup, dance=dance, studio=studio, fans=fans, concert=concert,
              office=office, night=night)
