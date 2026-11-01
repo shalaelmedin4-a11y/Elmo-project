@@ -32,3 +32,22 @@ clearly louder. Levels: `AMB_VOL=0.18 MUSIC_VOL=0.14 ./scripts/assemble.sh`.
 
 Dry run without real material: `./scripts/make_placeholders.sh && ./scripts/assemble.sh`.
 Needs `ffmpeg` with libass + freetype.
+
+---
+
+## Cartoon-Version (Papier-Cutout, komplett hier gerendert)
+
+```
+cartoon/paper.py    Zeichen-Kit: Papierformen, dicke Konturen, Stop-Motion-"Wackeln", Papierschatten & -textur
+cartoon/cast.py     eigene Figuren (Soldat, Ausbilder) und Kulissen (Baracke, Zelte, Fahnenmast, Hügel, Kantine, LKW)
+cartoon/scenes.py   die 6 Szenen (je 2 Einstellungen mit harten Schnitten), Untertitel-Timing
+cartoon/render.py   rendert 12 fps (Stop-Motion), Ausgabe 1080x1920 / 30 fps H.264
+cartoon/audio.py    Marschmusik (leise, Spannung steigt in Szene 5), Atmo und Cartoon-SFX
+cartoon/build.sh    alles bauen + mischen; fügt Sprachaufnahmen aus cartoon/voice/ ein, wenn vorhanden
+cartoon/STIMME.md   Sprechertext mit Startzeiten und Regie
+```
+
+`./cartoon/build.sh` → `output/ein_tag_soldat_cartoon_ohne_stimme.mp4`, bzw. mit
+`cartoon/voice/vo1.wav … vo6.wav` → `output/ein_tag_soldat_cartoon.mp4`
+(Stimme auf −14 LUFS, Musik/Atmo werden darunter automatisch abgesenkt).
+Neu rendern nach Änderungen an den Szenen: `RERENDER=1 ./cartoon/build.sh`.

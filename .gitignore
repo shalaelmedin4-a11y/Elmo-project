@@ -2,3 +2,5 @@ build/
 output/
 clips/*.mp4
 audio/*.wav
+cartoon/__pycache__/
+build_render.log
