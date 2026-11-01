@@ -86,7 +86,7 @@ def crowd(d, excite=0.0):
 
 def roar(d=3.5):
     t = t_axis(d)
-    env = np.minimum(1, t / .25) * np.exp(-np.maximum(0, t - .8) * .8)
+    env = np.minimum(1, t / .25) * np.exp(-np.maximum(0, t - 2.0) * .5)
     return norm(band(noise(d), 250, 3500) * env + A.cheer(d) * .6 * env)
 
 
@@ -151,7 +151,7 @@ def sfx():
     # 19:30 match
     m0, Lm = SC["match"]["start"], length("match")
     goal = SC["match"]["cues"][1][0] - .15
-    tr.add(crowd(Lm), m0, .07)
+    tr.add(crowd(Lm), m0, .10)
     tr.add(whistle_ref(.8), m0 + .15, .09)
     steps(tr, m0 + 1.8, m0 + 6.6, 6.0, .05)
     tr.add(A.thud(.15, 90), m0 + 4.3, .12)                                      # duel
@@ -159,7 +159,7 @@ def sfx():
     t_ = t_axis(1.1)                                                            # slow-motion strike (low, stretched)
     tr.add(norm(np.sin(2 * np.pi * (60 - 20 * t_) * t_) * np.exp(-t_ * 3)) + .2 * A.whoosh(1.1), m0 + goal - 1.0 - .4, .16)
     tr.add(band(noise(.5), 1500, 7000) * np.exp(-t_axis(.5) * 8), m0 + goal - .75, .10)   # net
-    tr.add(roar(4.0), m0 + goal - .7, .22)
+    tr.add(roar(min(5.5, Lm - goal + .7)), m0 + goal - .7, .45)
     # 22:30
     tr.add(splash(), at("night", 0.05), .10)
     for k in range(4):
@@ -175,12 +175,16 @@ def main(out):
     fade = np.ones(N)
     fade[-int(1.0 * SR):] = np.linspace(1, 0, int(1.0 * SR))
     L, R = L * fade, R * fade
-    g = 0.5 / max(np.max(np.abs(L)), np.max(np.abs(R)))
+    # loudness-based gain (not peak-based, so a loud goal roar doesn't push everything else down),
+    # then a soft limiter for the few loud peaks
+    rms = np.sqrt(np.mean(np.concatenate([L, R]) ** 2))
+    g = 0.04 / rms
+    st = np.tanh(np.stack([L, R], 1) * g * 1.4) / 1.4 * 0.9
     with wave.open(out, "wb") as w:
         w.setnchannels(2)
         w.setsampwidth(2)
         w.setframerate(SR)
-        w.writeframes((np.stack([L, R], 1) * g * 32767).astype("<i2").tobytes())
+        w.writeframes((st * 32767).astype("<i2").tobytes())
     print("wrote", out)
 
 

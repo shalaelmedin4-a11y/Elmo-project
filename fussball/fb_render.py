@@ -102,7 +102,7 @@ def main():
     n = int(DUR * FPS)
     enc = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
                             "-r", str(FPS), "-i", "-", "-vf", "fps=24", "-c:v", "libx264", "-preset", "medium",
-                            "-crf", "17", "-pix_fmt", "yuv420p", out], stdin=subprocess.PIPE)
+                            "-crf", "22", "-pix_fmt", "yuv420p", out], stdin=subprocess.PIPE)
     with Pool(os.cpu_count(), initializer=_init) as pool:
         for i, buf in enumerate(pool.imap(frame, range(n), chunksize=4)):
             enc.stdin.write(buf)
